@@ -1,27 +1,11 @@
-#ifndef COMMONS_H_
-#define COMMONS_H_
+#ifndef COMMONS_ANALITIC_H_
+#define COMMONS_ANALITIC_H_
 
-#include <fstream>
-#include <utility>
-#include <cmath>
-#include <string>
-
-using namespace std;
-
-static long double double_factoriel[20];
-
-pair<long double, long double> get_parameters()
-{
-	ifstream parameters("parameters.conf");
-	long double average_waiting_time, service_rate;
-	parameters >> average_waiting_time >> service_rate;
-	return make_pair(average_waiting_time, service_rate);
-}
+#include "Commons.h"
 
 class AnaliticCalculator
 {
 public:
-	static constexpr int K = 14;
 	long double u, lambda;
 	long double p[K + 4];
 	void calculate_p()
@@ -70,12 +54,5 @@ public:
 	}
 
 };
-
-void calculate_first()
-{
-	double_factoriel[0] = 1;
-	for (int i = 1;i < 20; i++)
-		double_factoriel[i] = double_factoriel[i - 1] * i;
-}
 
 #endif
