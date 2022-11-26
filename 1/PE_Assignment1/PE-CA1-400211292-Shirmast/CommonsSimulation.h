@@ -6,41 +6,17 @@
 #include <set>
 #include <deque>
 #include <iostream>
+#include <algorithm>
 
 #include "Commons.h"
 
 
-constexpr int CACHE_LOAD = 8192; 
+constexpr int CACHE_LOAD = (int) 1e6; 
 long double generate_random(long double lambda)
 {
     return - log(1 - (((long double) rand() / (RAND_MAX)))) / lambda;
 }
 
-void create_random_array(int n, long double lambda, long double u, long double tetha, bool fixed)
-{
-    long double last_time = 0;
-    ofstream out_array("0");
-    for (int i = 0; i < n; i++)
-    {
-        if (i % CACHE_LOAD == 0)
-        {
-            out_array.close();
-            out_array.open(to_string(i / CACHE_LOAD) + ".txt", std::ofstream::out);
-            out_array.precision(10);
-        	out_array.setf(std::ios::fixed, std::ios::floatfield);
-        }
-        long double wait_time = tetha;
-        if (fixed)
-            wait_time = tetha;
-        else
-            wait_time = generate_random(1 / tetha);
-        out_array << last_time << " " << wait_time << " " << generate_random(u) << "\n";
-        last_time += generate_random(lambda);
-    }
-    out_array.close();
-}
-
-int loaded_cache = -1;
 
 enum Situation
 {
@@ -75,41 +51,48 @@ struct Customer
             return next_time() < other.next_time();
         return situation > other.situation;
     }
-} cached[CACHE_LOAD + 1];
 
-Customer get_customer(int n)
-{
-    if (n / CACHE_LOAD != loaded_cache)
+    const bool operator == (const Customer& other) const
     {
-        loaded_cache = n / CACHE_LOAD;
-        ifstream loading_array(to_string(loaded_cache) + ".txt", std::ifstream::in);
-        for (int i = 0; i < CACHE_LOAD; i++)
-            loading_array >> cached[i].enter_time >> cached[i].wait_time >> cached[i].process_time;
-        loading_array.close();
+        return node_name == other.node_name;
     }
-    cached[n % CACHE_LOAD].node_name = n;
-    return cached[n % CACHE_LOAD];
+};
+
+Customer get_customer(long double& general_last_time, int n, long double lambda, long double u, long double theta, bool fixed)
+{
+    Customer a;
+    a.enter_time = general_last_time;
+    if (fixed)
+        a.wait_time = theta;
+    else
+        a.wait_time = generate_random(1 / theta);
+    a.process_time = generate_random(u);
+    general_last_time += generate_random(lambda);
+    a.node_name = n;
+    return a;
 }
 
 
-void run_simulation(int n, long double lambda, long double u, long double tetha, bool fixed)
+void run_simulation(int n, long double lambda, long double u, long double theta, bool fixed)
 {
     set<Customer> customers;
     deque<Customer> line;
     long double all_waiting_time = 0, last_time = 0;
     int blocked = 0, dropped = 0;
-    create_random_array(n, lambda, u, tetha, fixed);
+    long double general_last_time = 0;
     int i = 0;
     while (i < n || !customers.empty())
     {
         if(customers.size() < 100)
             while (i < n && customers.size() < 200)
             {
-                customers.insert(get_customer(i));
+                customers.insert(get_customer(general_last_time, n, lambda, u, theta, fixed));
                 i++;
+                if (i % 1048576 == 0)
+                    cout << lambda << " " << i / 1048576 << "\n";
             }
         Customer customer_event = *(customers.begin());
-        customers.erase(*(customers.begin()));
+        customers.erase(customers.begin());
         last_time = customer_event.next_time();
         if (customer_event.situation == ENTERING)
         {
@@ -132,10 +115,7 @@ void run_simulation(int n, long double lambda, long double u, long double tetha,
         else if (customer_event.situation == WAITING)
         {
             all_waiting_time += customer_event.wait_time;
-            auto customer_iteration = line.end();
-            for (auto it = line.begin(); it != line.end(); it++)
-                if((*it).node_name == customer_event.node_name)
-                    customer_iteration = it;
+            auto customer_iteration = find(line.begin(), line.end(), customer_event);
             line.erase(customer_iteration);
             dropped ++;
         }
@@ -145,9 +125,9 @@ void run_simulation(int n, long double lambda, long double u, long double tetha,
             line.pop_front();
             if (!line.empty())
             {
-                Customer& front_customer = line.front();
+                Customer front_customer = line.front();
                 customers.erase(front_customer);
-                all_waiting_time += front_customer.wait_time + last_time - front_customer.next_time();
+                all_waiting_time += front_customer.wait_time;// + last_time - front_customer.next_time();
                 front_customer.situation = EXITING;
                 front_customer.start_processing_time = last_time;
                 customers.insert(front_customer);
@@ -155,10 +135,15 @@ void run_simulation(int n, long double lambda, long double u, long double tetha,
         }
     }
 
-    cout << blocked << " " << dropped << "\n";
-    cout << (long double) blocked / (long double) n << " " 
-            << (long double)  dropped / (long double) n << "\n";
-    cout << all_waiting_time << " " << all_waiting_time / last_time << "\n\n";
+    cout << "ended:" << lambda << " " << fixed << "\n";
+    ofstream out_file("../simulation.csv", std::ofstream::app);
+	out_file.precision(10);
+	out_file.setf(std::ios::fixed, std:: ios::floatfield);
+    out_file << lambda << "," << fixed << ",";
+    out_file << (long double) blocked / (long double) n << "," 
+            << (long double)  dropped / (long double) n << ",";
+    out_file << all_waiting_time / last_time << "," << n << "\n";
+    out_file.close();
 }
 
 

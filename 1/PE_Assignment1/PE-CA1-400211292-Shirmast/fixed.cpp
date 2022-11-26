@@ -26,17 +26,24 @@ int main()
 {
 	calculate_first();
 	auto parameters = get_parameters();
-	ofstream out_file("analitic_fixed.csv");
+	ofstream out_file("../analitic_fixed.csv");
 	out_file.precision(10);
 	out_file.setf( std::ios::fixed, std:: ios::floatfield );
 	out_file << "lambda,Pb,Pd,Nc\n";
+	out_file.close();
+	#pragma omp parallel for
 	for (int i = 1; i <= 200; i++)
 	{
 		long double lambda = (long double) i / 10;
 		AnaliticCalculatorFixed calculator(parameters.first, parameters.second, lambda);
 		calculator.calculate();
+		ofstream out_file("../analitic_fixed.csv", ofstream::app);
+		out_file.precision(10);
+		out_file.setf( std::ios::fixed, std:: ios::floatfield );
 		out_file << lambda << "," << calculator.p_b << "," << calculator.p_d << "," << calculator.n_c << "\n";
+		out_file.close();
+		run_simulation(int (1e7), lambda, parameters.second, parameters.first, true);
 	}
-	run_simulation(10000, 10, 1, 3, true);
+
 	return 0;
 }
