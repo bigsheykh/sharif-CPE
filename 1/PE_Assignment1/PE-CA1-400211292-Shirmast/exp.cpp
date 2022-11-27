@@ -30,17 +30,19 @@ int main()
 	ofstream out_file("../analitic_exp.csv");
 	out_file << "lambda,Pb,Pd,Nc\n";
 	out_file.close();
+
 	#pragma omp parallel for
 	for (int i = 1; i <= 200; i++)
 	{
 		long double lambda = (long double) i / 10;
+
 		AnaliticCalculatorExp calculator(parameters.first, parameters.second, lambda);
 		calculator.calculate();
 		ofstream out_file("../analitic_exp.csv", ofstream::app);
 		out_file << lambda << "," << calculator.p_b << "," << calculator.p_d << "," << calculator.n_c << "\n";
 		out_file.close();
-		run_simulation(int (3e7), lambda, parameters.second, parameters.first, true);
+
+		run_simulation(int (3e7), lambda, parameters.second, parameters.first, false);
 	}
-	// run_simulation(100000, 10, 1, 3, false);
 	return 0;
 }
