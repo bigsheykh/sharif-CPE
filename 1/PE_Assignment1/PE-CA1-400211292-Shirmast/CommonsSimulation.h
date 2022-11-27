@@ -83,14 +83,9 @@ void run_simulation(int n, long double lambda, long double u, long double theta,
     int i = 0;
     while (i < n || !customers.empty())
     {
-        if(customers.size() < 100)
-            while (i < n && customers.size() < 200)
-            {
-                customers.insert(get_customer(general_last_time, n, lambda, u, theta, fixed));
-                i++;
-                if (i % 1048576 == 0)
-                    cout << lambda << " " << i / 1048576 << "\n";
-            }
+        while (i < n && customers.size() < 200)
+            customers.insert(get_customer(general_last_time, ++i, lambda, u, theta, fixed));
+
         Customer customer_event = *(customers.begin());
         customers.erase(customers.begin());
         last_time = customer_event.next_time();
@@ -127,7 +122,7 @@ void run_simulation(int n, long double lambda, long double u, long double theta,
             {
                 Customer front_customer = line.front();
                 customers.erase(front_customer);
-                all_waiting_time += front_customer.wait_time;// + last_time - front_customer.next_time();
+                all_waiting_time += front_customer.wait_time + last_time - front_customer.next_time();
                 front_customer.situation = EXITING;
                 front_customer.start_processing_time = last_time;
                 customers.insert(front_customer);

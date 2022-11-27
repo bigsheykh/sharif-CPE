@@ -22,26 +22,36 @@ class AnaliticCalculatorFixed : public AnaliticCalculator
 	}
 };
 
-int main()
+int main(int argc, char** argv)
 {
+	bool run_type = (argc > 1);
 	calculate_first();
 	auto parameters = get_parameters();
 	ofstream out_file("../analitic_fixed.csv");
 	out_file << "lambda,Pb,Pd,Nc\n";
 	out_file.close();
+	if (!run_type)
+	{
+		ofstream out_file("../simulation.csv");
+		out_file << "lambda,is_it_fixed_timed,Pb,Pd,Nc,client_numbers\n";
+		out_file.close();
+	}
 	#pragma omp parallel for
 	for (int i = 1; i <= 200; i++)
-	{
-		long double lambda = (long double) i / 10;
-		// AnaliticCalculatorFixed calculator(parameters.first, parameters.second, lambda);
-		// calculator.calculate();
-		// ofstream out_file("../analitic_fixed.csv", ofstream::app);
-		// out_file.precision(10);
-		// out_file.setf(std::ios::fixed, std:: ios::floatfield);
-		// out_file << lambda << "," << calculator.p_b << "," << calculator.p_d << "," << calculator.n_c << "\n";
-		// out_file.close();
-		run_simulation(int (1e7), lambda, parameters.second, parameters.first, true);
-	}
+		if (run_type || i == 50 || i == 100 || i == 150)
+			{
+				long double lambda = (long double) i / 10;
+
+				AnaliticCalculatorFixed calculator(parameters.first, parameters.second, lambda);
+				calculator.calculate();
+				ofstream out_file("../analitic_fixed.csv", ofstream::app);
+				out_file.precision(10);
+				out_file.setf(std::ios::fixed, std:: ios::floatfield);
+				out_file << lambda << "," << calculator.p_b << "," << calculator.p_d << "," << calculator.n_c << "\n";
+				out_file.close();
+
+				run_simulation(int (3e7), lambda, parameters.second, parameters.first, true);
+			}
 
 	return 0;
 }
