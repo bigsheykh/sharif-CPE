@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	if (!run_type)
 	{
 		ofstream out_file("../simulation.csv");
-		out_file << "lambda,is_it_fixed_timed,Pb,Pd,Nc,client_numbers\n";
+		out_file << "lambda,is_tetha_fixed,Pb,Pd,Nc,client_numbers\n";
 		out_file.close();
 	}
 	#pragma omp parallel for
