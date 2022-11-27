@@ -10,13 +10,10 @@
 
 #include "Commons.h"
 
-
-constexpr int CACHE_LOAD = (int) 1e6; 
 long double generate_random(long double lambda)
 {
     return - log(1 - (((long double) rand() / (RAND_MAX)))) / lambda;
 }
-
 
 enum Situation
 {
@@ -31,6 +28,7 @@ struct Customer
     long double start_processing_time;
     int node_name;
     Situation situation;
+
     Customer()
     {
         situation = ENTERING;

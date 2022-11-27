@@ -11,7 +11,7 @@ run:
 	./fixed; \
 	cd ..
 
-run_all:
+run_all: output
 	@cd out; \
 	./fixed run_all; \
 	./exp; \
