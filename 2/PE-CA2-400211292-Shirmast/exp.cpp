@@ -8,18 +8,15 @@
 class AnaliticCalculatorExp : public AnaliticCalculator
 {
 	public:
-	AnaliticCalculatorExp(long double average_waiting_time, long double u, long double lambda):
-		AnaliticCalculator(average_waiting_time, u, lambda)
+	AnaliticCalculatorExp(__float128 tetha, __float128 u, __float128 lambda):
+		AnaliticCalculator(tetha, u, lambda)
 	{
 
 	}
 
-	long double phi(int n) override
+	__float128 gamma(int n) override
 	{
-		long double mul = double_factoriel[n];
-		for (int i = 0; i <= n; i++)
-			mul /= u + (long double) i / average_waiting_time;
-		return mul;
+		return (__float128) n / tetha;
 	}
 };
 
@@ -34,12 +31,15 @@ int main()
 	#pragma omp parallel for
 	for (int i = 1; i <= 200; i++)
 	{
-		long double lambda = (long double) i / 10;
+		__float128 lambda = (__float128) i / 10;
 
 		AnaliticCalculatorExp calculator(parameters.first, parameters.second, lambda);
 		calculator.calculate();
 		ofstream out_file("../analitic_exp.csv", ofstream::app);
-		out_file << lambda << "," << calculator.p_b << "," << calculator.p_d << "," << calculator.n_c << "\n";
+		out_file << (long double) lambda << "," <<
+				(long double) calculator.p_b << "," <<
+				(long double) calculator.p_d << "," <<
+				(long double) calculator.n_c << "\n";
 		out_file.close();
 
 		run_simulation(int (3e7), lambda, parameters.second, parameters.first, false);

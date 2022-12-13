@@ -7,18 +7,15 @@
 class AnaliticCalculatorFixed : public AnaliticCalculator
 {
 	public:
-	AnaliticCalculatorFixed(long double average_waiting_time, long double u, long double lambda):
-		AnaliticCalculator(average_waiting_time, u, lambda)
+	AnaliticCalculatorFixed(__float128 tetha, __float128 u, __float128 lambda):
+		AnaliticCalculator(tetha, u, lambda)
 	{
 
 	}
 
-	long double phi(int n) override
+	__float128 gamma(int n) override
 	{
-		long double sum = 0;
-		for (int i = 0; i < n; i++)
-			sum += pow(u * average_waiting_time, i) / double_factoriel[i];
-		return double_factoriel[n] / pow(u, n + 1) * (1 - exp(-u * average_waiting_time) * sum );
+		return u / (exp((long double) (u * tetha / n)) - 1);
 	}
 };
 
@@ -40,14 +37,17 @@ int main(int argc, char** argv)
 	for (int i = 1; i <= 200; i++)
 		if (run_type || i == 50 || i == 100 || i == 150)
 			{
-				long double lambda = (long double) i / 10;
+				__float128 lambda = (__float128) i / 10;
 
 				AnaliticCalculatorFixed calculator(parameters.first, parameters.second, lambda);
 				calculator.calculate();
 				ofstream out_file("../analitic_fixed.csv", ofstream::app);
 				out_file.precision(10);
 				out_file.setf(std::ios::fixed, std:: ios::floatfield);
-				out_file << lambda << "," << calculator.p_b << "," << calculator.p_d << "," << calculator.n_c << "\n";
+				out_file << (long double) lambda << "," <<
+						(long double) calculator.p_b << "," <<
+						(long double) calculator.p_d << "," <<
+						(long double) calculator.n_c << "\n";
 				out_file.close();
 
 				run_simulation(int (3e7), lambda, parameters.second, parameters.first, true);

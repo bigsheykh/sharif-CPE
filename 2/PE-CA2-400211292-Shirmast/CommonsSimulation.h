@@ -10,7 +10,7 @@
 
 #include "Commons.h"
 
-long double generate_random(long double lambda)
+__float128 generate_random(__float128 lambda)
 {
     return - log(1 - (((long double) rand() / (RAND_MAX)))) / lambda;
 }
@@ -24,8 +24,8 @@ enum Situation
 
 struct Customer
 {
-    long double enter_time, wait_time, process_time;
-    long double start_processing_time;
+    __float128 enter_time, wait_time, process_time;
+    __float128 start_processing_time;
     int node_name;
     Situation situation;
 
@@ -34,7 +34,7 @@ struct Customer
         situation = ENTERING;
     }
 
-    const long double next_time() const
+    const __float128 next_time() const
     {
         if (situation == ENTERING)
             return enter_time;
@@ -56,7 +56,7 @@ struct Customer
     }
 };
 
-Customer get_customer(long double& general_last_time, int n, long double lambda, long double u, long double theta, bool fixed)
+Customer get_customer(__float128& general_last_time, int n, __float128 lambda, __float128 u, __float128 theta, bool fixed)
 {
     Customer a;
     a.enter_time = general_last_time;
@@ -71,13 +71,13 @@ Customer get_customer(long double& general_last_time, int n, long double lambda,
 }
 
 
-void run_simulation(int n, long double lambda, long double u, long double theta, bool fixed)
+void run_simulation(int n, __float128 lambda, __float128 u, __float128 theta, bool fixed)
 {
     set<Customer> customers;
     deque<Customer> line;
-    long double all_waiting_time = 0, last_time = 0;
+    __float128 all_waiting_time = 0, last_time = 0;
     int blocked = 0, dropped = 0;
-    long double general_last_time = 0;
+    __float128 general_last_time = 0;
     int i = 0;
     while (i < n || !customers.empty())
     {
@@ -128,16 +128,15 @@ void run_simulation(int n, long double lambda, long double u, long double theta,
         }
     }
 
-    cout << "ended:" << lambda << " " << fixed << "\n";
+    cout << "ended:" << (long double)lambda << " " << fixed << "\n";
     ofstream out_file("../simulation.csv", std::ofstream::app);
 	out_file.precision(10);
 	out_file.setf(std::ios::fixed, std:: ios::floatfield);
-    out_file << lambda << "," << fixed << ",";
+    out_file << (long double) lambda << "," << fixed << ",";
     out_file << (long double) blocked / (long double) n << "," 
             << (long double)  dropped / (long double) n << ",";
-    out_file << all_waiting_time / last_time << "," << n << "\n";
+    out_file << (long double) all_waiting_time / (long double) last_time << "," << n << "\n";
     out_file.close();
 }
-
 
 #endif

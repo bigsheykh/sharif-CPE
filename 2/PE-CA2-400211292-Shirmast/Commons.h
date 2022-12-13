@@ -8,24 +8,19 @@
 
 using namespace std;
 
-static long double double_factoriel[20];
 static constexpr int K = 14;
 
-pair<long double, long double> get_parameters()
+pair<__float128, __float128> get_parameters()
 {
 	ifstream parameters("parameters.conf");
-	long double average_waiting_time, service_rate;
-	parameters >> average_waiting_time >> service_rate;
-	return make_pair(average_waiting_time, service_rate);
+	long double tetha, service_rate;
+	parameters >> tetha >> service_rate;
+	return make_pair((__float128) tetha, (__float128) service_rate);
 }
-
 
 void calculate_first()
 {
 	srand(time(NULL));
-	double_factoriel[0] = 1;
-	for (int i = 1;i < 20; i++)
-		double_factoriel[i] = double_factoriel[i - 1] * i;
 }
 
 #endif
