@@ -1,7 +1,6 @@
 #ifndef COMMONS_ANALITIC_H_
 #define COMMONS_ANALITIC_H_
 
-#include <quadmath.h>
 #include "Commons.h"
 //-std=gnu++11
 

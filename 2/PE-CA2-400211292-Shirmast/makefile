@@ -1,5 +1,5 @@
 output: clear
-	sudo apt install libquadmath0
+	# sudo apt install libquadmath0
 	@mkdir -p out
 	@cp parameters.conf out
 	@cd out; \
