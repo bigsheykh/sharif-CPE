@@ -39,16 +39,16 @@ int main(int argc, char** argv)
 			{
 				__float128 lambda = (__float128) i / 10;
 
-				// AnaliticCalculatorFixed calculator(parameters.first, parameters.second, lambda);
-				// calculator.calculate();
-				// ofstream out_file("../analitic_fixed.csv", ofstream::app);
-				// out_file.precision(10);
-				// out_file.setf(std::ios::fixed, std:: ios::floatfield);
-				// out_file << (long double) lambda << "," <<
-				// 		(long double) calculator.p_b << "," <<
-				// 		(long double) calculator.p_d << "," <<
-				// 		(long double) calculator.n_c << "\n";
-				// out_file.close();
+				AnaliticCalculatorFixed calculator(parameters.first, parameters.second, lambda);
+				calculator.calculate();
+				ofstream out_file("../analitic_fixed.csv", ofstream::app);
+				out_file.precision(10);
+				out_file.setf(std::ios::fixed, std:: ios::floatfield);
+				out_file << (long double) lambda << "," <<
+						(long double) calculator.p_b << "," <<
+						(long double) calculator.p_d << "," <<
+						(long double) calculator.n_c << "\n";
+				out_file.close();
 				run_simulation(int (3e7), lambda, parameters.second, parameters.first, true);
 			}
 
